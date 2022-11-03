@@ -1,0 +1,63 @@
+version: '3.3'
+
+services:
+  nginx:
+    container_name: nginx
+    build: ./build/nginx-1.15.5
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./www:/var/www/html
+      - ./docker/logs/nginx:/var/log/nginx
+      - ./docker/config/nginx/conf.d:/etc/nginx/conf.d
+    restart: always
+    tty: true
+    networks:
+     - lnmp-networks
+  php73:
+    container_name: php73
+    build: ./build/php73  
+    volumes:
+      - ./www:/var/www/html
+      - ./docker/logs/php:/var/log/php
+    tty: true
+    restart: always
+    depends_on:
+      - nginx
+      - mysql
+      - redis
+    links:
+      - mysql:mysql
+      - redis:redis
+    networks:
+      - lnmp-networks
+  mysql:
+    container_name: mysql
+    image: daocloud.io/library/mysql:5.7.7
+    restart: always
+    expose:
+      - "3306"
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/data/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    networks:
+      - lnmp-networks
+  redis:
+    container_name: redis
+    image: daocloud.io/library/redis
+    restart: always
+    expose:
+      - "6379"
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./docker/data/redis:/data
+    command: redis-server --appendonly yes
+    networks:
+      - lnmp-networks
+networks:
+ lnmp-networks:
