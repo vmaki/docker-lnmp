@@ -72,5 +72,39 @@ services:
     command: [ --auth ]
     networks:
       - lnmp-networks
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:7.12.0
+    environment:
+      - "cluster.name=elasticsearch"       # 设置集群名称为 es
+      - "discovery.type=single-node"       # 以单一节点模式启动
+      - "ES_JAVA_OPTS=-Xms512m -Xmx1024m"  # 设置使用jvm内存大小
+    volumes:
+      - ./docker/data/es:/usr/share/elasticsearch/data:rw     # 数据文件挂载
+      - ./docker/plugins/es:/usr/share/elasticsearch/plugins  # 插件文件挂载
+    ports:
+      - 9200:9200
+      - 9300:9300
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1000M
+        reservations:
+          memory: 200M
+    networks:
+      - lnmp-networks
+  kibana:
+    image: kibana:7.12.0
+    container_name: kibana
+    depends_on:
+      - elasticsearch
+    volumes:
+      - ./docker/config/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+    ports:
+      - 5601:5601
+    privileged: true    #环境变量
+    networks:
+      - lnmp-networks
 networks:
  lnmp-networks:
