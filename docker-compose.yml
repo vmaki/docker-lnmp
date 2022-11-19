@@ -17,7 +17,7 @@ services:
      - lnmp-networks
   php73:
     container_name: php73
-    build: ./build/php73  
+    build: ./build/php73
     volumes:
       - ./www:/var/www/html
       - ./docker/logs/php:/var/log/php
@@ -57,6 +57,19 @@ services:
     volumes:
       - ./docker/data/redis:/data
     command: redis-server --appendonly yes
+    networks:
+      - lnmp-networks
+  mongo:
+    container_name: mongo
+    image: mongo
+    ports:
+      - '27017:27017'
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+    volumes:
+      - ./docker/data/mongo:/data/db
+    command: [ --auth ]
     networks:
       - lnmp-networks
 networks:
