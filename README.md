@@ -8,6 +8,9 @@
 - Nginx 1.15.5
 - MySQL 5.7
 - Redis
+- MongoDB
+- Elasticsearch 7.12.0
+- Kibana 7.12.0
 
 ## 目录结构
 
@@ -19,12 +22,17 @@ Docker-LNMP
 |--docker                              Docker 目录
 |----config                            配置目录
 |------nginx                           Nginx  配置目录
+|------kibana                          Kibana  配置目录
 |----data                              数据库数据目录
+|------es                              Elasticsearch 数据目录
+|------mongo                           MongoDB 数据目录
 |------mysql                           Mysql 数据目录
 |------redis                           Redis 数据目录
 |----logs                              日志目录
 |------nginx                           Nginx 日志目录
 |------php                             PHP 日志目录
+|----plugins                           插件目录
+|------es                              Elasticsearch 插件目录
 |----www                               应用根目录
 |----README.md                         说明文件
 |----docker-compose.yml                docker compose 配置文件
@@ -97,6 +105,24 @@ nginx
 ### 4. 浏览器访问
 
 访问 http://laravel-app.test ，可以看到页面显示出内容就代表项目部署完成。  
+
+## Elasticsearch 安装分词器
+
+### 1. 进入容器
+
+```bash
+docker exec -it elasticsearch /bin/bash
+```
+
+### 2. 安装分词器
+
+```bash
+# 先进入 bin 目录
+cd bin
+
+# 执行安装命令
+./elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.12.0/elasticsearch-analysis-ik-7.12.0.zip
+```
 
 ## 常用 Docker 命令
 
