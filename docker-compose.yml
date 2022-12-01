@@ -95,8 +95,8 @@ services:
     networks:
       - lnmp-networks
   kibana:
-    image: kibana:7.12.0
     container_name: kibana
+    image: kibana:7.12.0
     depends_on:
       - elasticsearch
     volumes:
@@ -104,6 +104,19 @@ services:
     ports:
       - 5601:5601
     privileged: true    #环境变量
+    networks:
+      - lnmp-networks
+  rabbitmq:
+    container_name: "rabbitmq"
+    image: rabbitmq:3.9-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=root
+      - RABBITMQ_DEFAULT_PASS=123456
+    volumes:
+      - ./docker/data/rabbitmq:/var/lib/rabbitmq
     networks:
       - lnmp-networks
 networks:
