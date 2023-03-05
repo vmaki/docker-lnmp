@@ -1,4 +1,0 @@
-*
-!.gitignore
-!conf.d/default.conf
-!kibana/kibana.yml
