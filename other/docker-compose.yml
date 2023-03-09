@@ -1,0 +1,53 @@
+version: '3.3'
+
+services:
+  other-elasticsearch:
+    container_name: other-elasticsearch
+    image: elasticsearch:7.12.0
+    environment:
+      - "cluster.name=elasticsearch"       # 设置集群名称为 es
+      - "discovery.type=single-node"       # 以单一节点模式启动
+      - "ES_JAVA_OPTS=-Xms512m -Xmx1024m"  # 设置使用jvm内存大小
+    volumes:
+      - ./docker/data/es:/usr/share/elasticsearch/data:rw     # 数据文件挂载
+      - ./docker/plugins/es:/usr/share/elasticsearch/plugins  # 插件文件挂载
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1000M
+        reservations:
+          memory: 200M
+    networks:
+      - other-networks
+  other-kibana:
+    container_name: other-kibana
+    image: kibana:7.12.0
+    depends_on:
+      - other-elasticsearch
+    volumes:
+      - ./docker/config/kibana/:/usr/share/kibana/config/
+    ports:
+      - "5601:5601"
+    privileged: true    #环境变量
+    networks:
+      - other-networks
+  other-rabbitmq:
+    container_name: other-rabbitmq
+    image: rabbitmq:3.9-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=root
+      - RABBITMQ_DEFAULT_PASS=123456
+    volumes:
+      - ./docker/data/rabbitmq:/var/lib/rabbitmq
+    networks:
+      - other-networks
+networks:
+  other-networks:
+   driver: bridge

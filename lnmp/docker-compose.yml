@@ -1,22 +1,22 @@
 version: '3.3'
 
 services:
-  nginx:
-    container_name: nginx
+  lnmp-nginx:
+    container_name: lnmp-nginx
     build: ./build/nginx-1.15.5
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./www:/var/www/html
-      - ./docker/logs/nginx:/var/log/nginx
       - ./docker/config/nginx/conf.d:/etc/nginx/conf.d
+      - ./docker/logs/nginx:/var/log/nginx
     restart: always
-    tty: true
+    tty: true # 为容器分配一个伪终端，就相当于 docker run -t
     networks:
      - lnmp-networks
-  php73:
-    container_name: php73
+  lnmp-php73:
+    container_name: lnmp-php73
     build: ./build/php73
     volumes:
       - ./www:/var/www/html
@@ -24,16 +24,16 @@ services:
     tty: true
     restart: always
     depends_on:
-      - nginx
-      - mysql
-      - redis
+      - lnmp-nginx
+      - lnmp-mysql
+      - lnmp-redis
     links:
-      - mysql:mysql
-      - redis:redis
+      - lnmp-mysql:mysql
+      - lnmp-redis:redis
     networks:
       - lnmp-networks
-  mysql:
-    container_name: mysql
+  lnmp-mysql:
+    container_name: lnmp-mysql
     image: daocloud.io/library/mysql:5.7.7
     restart: always
     expose:
@@ -46,8 +46,8 @@ services:
       - MYSQL_ROOT_PASSWORD=root
     networks:
       - lnmp-networks
-  redis:
-    container_name: redis
+  lnmp-redis:
+    container_name: lnmp-redis
     image: daocloud.io/library/redis
     restart: always
     expose:
@@ -59,8 +59,8 @@ services:
     command: redis-server --appendonly yes
     networks:
       - lnmp-networks
-  mongo:
-    container_name: mongo
+  lnmp-mongo:
+    container_name: lnmp-mongo
     image: mongo
     ports:
       - "27017:27017"
@@ -70,53 +70,6 @@ services:
     volumes:
       - ./docker/data/mongo:/data/db
     command: [ --auth ]
-    networks:
-      - lnmp-networks
-  elasticsearch:
-    container_name: elasticsearch
-    image: elasticsearch:7.12.0
-    environment:
-      - "cluster.name=elasticsearch"       # 设置集群名称为 es
-      - "discovery.type=single-node"       # 以单一节点模式启动
-      - "ES_JAVA_OPTS=-Xms512m -Xmx1024m"  # 设置使用jvm内存大小
-    volumes:
-      - ./docker/data/es:/usr/share/elasticsearch/data:rw     # 数据文件挂载
-      - ./docker/plugins/es:/usr/share/elasticsearch/plugins  # 插件文件挂载
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    deploy:
-      resources:
-        limits:
-          cpus: "2"
-          memory: 1000M
-        reservations:
-          memory: 200M
-    networks:
-      - lnmp-networks
-  kibana:
-    container_name: kibana
-    image: kibana:7.12.0
-    depends_on:
-      - elasticsearch
-    volumes:
-      - ./docker/config/kibana/:/usr/share/kibana/config/
-    ports:
-      - "5601:5601"
-    privileged: true    #环境变量
-    networks:
-      - lnmp-networks
-  rabbitmq:
-    container_name: "rabbitmq"
-    image: rabbitmq:3.9-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    environment:
-      - RABBITMQ_DEFAULT_USER=root
-      - RABBITMQ_DEFAULT_PASS=123456
-    volumes:
-      - ./docker/data/rabbitmq:/var/lib/rabbitmq
     networks:
       - lnmp-networks
 networks:
