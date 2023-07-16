@@ -1,8 +1,8 @@
 version: '3.3'
 
 services:
-  lnmp-nginx:
-    container_name: lnmp-nginx
+  lnmp_nginx:
+    container_name: lnmp_nginx
     build: ./build/nginx-1.15.5
     ports:
       - "80:80"
@@ -14,9 +14,9 @@ services:
     restart: always
     tty: true # 为容器分配一个伪终端，就相当于 docker run -t
     networks:
-     - lnmp-networks
-  lnmp-php73:
-    container_name: lnmp-php73
+     - lnmp_networks
+  lnmp_php73:
+    container_name: lnmp_php73
     build: ./build/php73
     volumes:
       - ./www:/var/www/html
@@ -24,17 +24,19 @@ services:
     tty: true
     restart: always
     depends_on:
-      - lnmp-nginx
-      - lnmp-mysql
-      - lnmp-redis
+      - lnmp_nginx
+      - lnmp_mysql
+      - lnmp_redis
+      - lnmp_mongo
     links:
-      - lnmp-mysql:mysql
-      - lnmp-redis:redis
+      - lnmp_mysql:mysql
+      - lnmp_redis:redis
+      - lnmp_mongo:mongo
     networks:
-      - lnmp-networks
-  lnmp-mysql:
-    container_name: lnmp-mysql
-    image: daocloud.io/library/mysql:5.7.7
+      - lnmp_networks
+  lnmp_mysql:
+    container_name: lnmp_mysql
+    image: mysql/mysql-server:8.0.28
     restart: always
     expose:
       - "3306"
@@ -43,12 +45,19 @@ services:
     volumes:
       - ./docker/data/mysql:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=root
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: 123456
+    command:
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --explicit_defaults_for_timestamp=true
+      --lower_case_table_names=1
     networks:
-      - lnmp-networks
-  lnmp-redis:
-    container_name: lnmp-redis
-    image: daocloud.io/library/redis
+      - lnmp_networks
+  lnmp_redis:
+    container_name: lnmp_redis
+    image: redis:6.2.5
     restart: always
     expose:
       - "6379"
@@ -56,22 +65,25 @@ services:
       - "6379:6379"
     volumes:
       - ./docker/data/redis:/data
-    command: redis-server --appendonly yes
+    environment:
+      TZ: Asia/Shanghai
+    command: "redis-server --requirepass 123456  --appendonly yes"
     networks:
-      - lnmp-networks
-  lnmp-mongo:
-    container_name: lnmp-mongo
+      - lnmp_networks
+  lnmp_mongo:
+    container_name: lnmp_mongo
     image: mongo
+    restart: always
     ports:
       - "27017:27017"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=root
+      - MONGO_INITDB_ROOT_PASSWORD=123456
     volumes:
       - ./docker/data/mongo:/data/db
     command: [ --auth ]
     networks:
-      - lnmp-networks
+      - lnmp_networks
 networks:
- lnmp-networks:
+ lnmp_networks:
    driver: bridge
