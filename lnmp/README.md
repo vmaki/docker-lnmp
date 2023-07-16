@@ -38,6 +38,27 @@ Docker-LNMP
 docker-compose up -d
 ```
 
+### 本地工具连接mysql
+
+本地工具连接mysql的话要先进入容器，给root设置下远程连接权限
+
+```shell
+docker exec -it mysql mysql -uroot -p
+##输入密码：123456
+
+use mysql;
+update user set host='%' where user='root';
+FLUSH PRIVILEGES;
+
+# 退出容器
+exit
+```
+$ docker exec -it mysql mysql -uroot -p
+##输入密码：PXDN93VRKUm8TeE7
+$ use mysql;
+$ update user set host='%' where user='root';
+$ FLUSH PRIVILEGES;
+
 ## 新建站点
 
 比如部署一个 Laravel 项目，并且可以通过 http://laravel-app.test 访问：
