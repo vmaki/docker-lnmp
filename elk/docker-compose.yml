@@ -1,0 +1,40 @@
+version: '3.3'
+
+services:
+  elk_es:
+    container_name: elk_es
+    image: elasticsearch:7.12.0
+    environment:
+      - "cluster.name=es"       # 设置集群名称为 es
+      - "discovery.type=single-node"       # 以单一节点模式启动
+      - "ES_JAVA_OPTS=-Xms512m -Xmx1024m"  # 设置使用jvm内存大小
+    volumes:
+      - ./docker/data/es:/usr/share/elasticsearch/data:rw     # 数据文件挂载
+      - ./docker/plugins/es:/usr/share/elasticsearch/plugins  # 插件文件挂载
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1000M
+        reservations:
+          memory: 200M
+    networks:
+      - elk_networks
+  elk_kibana:
+    container_name: elk_kibana
+    image: kibana:7.12.0
+    depends_on:
+      - elk_es
+    volumes:
+      - ./docker/config/kibana/:/usr/share/kibana/config/
+    ports:
+      - "5601:5601"
+    privileged: true    #环境变量
+    networks:
+      - elk_networks
+networks:
+  elk_networks:
+   driver: bridge
