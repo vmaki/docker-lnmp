@@ -1,51 +1,51 @@
 version: "3"
 services:
-  etcd-1:
+  etcd_1:
     image: bitnami/etcd:3.4
-    container_name: etcd-1
+    container_name: etcd_1
     networks:
-      - etcd-net
+      - etcd_networks
     ports:
       - "20000:2379"
       - "20001:2380"
     environment:
       - ALLOW_NONE_AUTHENTICATION=yes                           # 允许不用密码登录
-      - ETCD_NAME=etcd-1                                        # etcd 的名字
-      - ETCD_INITIAL_ADVERTISE_PEER_URLS=http://etcd-1:2380     # 列出这个成员的伙伴 URL 以便通告给集群的其他成员
+      - ETCD_NAME=etcd_1                                        # etcd 的名字
+      - ETCD_INITIAL_ADVERTISE_PEER_URLS=http://etcd_1:2380     # 列出这个成员的伙伴 URL 以便通告给集群的其他成员
       - ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380               # 用于监听伙伴通讯的URL列表
       - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379             # 用于监听客户端通讯的URL列表
-      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd-1:2379           # 列出这个成员的客户端URL，通告给集群中的其他成员
+      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd_1:2379           # 列出这个成员的客户端URL，通告给集群中的其他成员
       - ETCD_INITIAL_CLUSTER_TOKEN=etcd-cluster                 # 在启动期间用于 etcd 集群的初始化集群记号
-      - ETCD_INITIAL_CLUSTER=etcd-1=http://etcd-1:2380,etcd-2=http://etcd-2:2380        # 为启动初始化集群配置
+      - ETCD_INITIAL_CLUSTER=etcd_1=http://etcd_1:2380,etcd_2=http://etcd_2:2380        # 为启动初始化集群配置
       - ETCD_INITIAL_CLUSTER_STATE=new                          # 初始化集群状态
       - ETCDCTL_API=3                                           # 升级api版本，使用最新的v3 API
     volumes:
-      - ./docker/data/etcd-1:/etcd-data
+      - ./docker/data/etcd_1:/etcd-data
       - /etc/localtime:/etc/localtime
 
-  etcd-2:
+  etcd_2:
     image: bitnami/etcd:3.4
-    container_name: etcd-2
+    container_name: etcd_2
     networks:
-      - etcd-net
+      - etcd_networks
     ports:
       - "20002:2379"
       - "20003:2380"
     environment:
       - ALLOW_NONE_AUTHENTICATION=yes
-      - ETCD_NAME=etcd-2
-      - ETCD_INITIAL_ADVERTISE_PEER_URLS=http://etcd-2:2380
+      - ETCD_NAME=etcd_2
+      - ETCD_INITIAL_ADVERTISE_PEER_URLS=http://etcd_2:2380
       - ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380
       - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
-      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd-2:2379
+      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd_2:2379
       - ETCD_INITIAL_CLUSTER_TOKEN=etcd-cluster
-      - ETCD_INITIAL_CLUSTER=etcd-1=http://etcd-1:2380,etcd-2=http://etcd-2:2380
+      - ETCD_INITIAL_CLUSTER=etcd_1=http://etcd_1:2380,etcd_2=http://etcd_2:2380
       - ETCD_INITIAL_CLUSTER_STATE=new
       - ETCDCTL_API=3
     volumes:
-      - ./docker/data/etcd-2:/etcd-data
+      - ./docker/data/etcd_2:/etcd-data
       - /etc/localtime:/etc/localtime
 
 networks:
-  etcd-net:           # 网络
+  etcd_networks:           # 网络
     driver: bridge    # 桥接模式
